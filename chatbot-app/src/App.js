@@ -1,19 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 
 function App() {
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  let [messages, setMessages] = useState(JSON.parse(localStorage.getItem('chatMessages')) || []);
+  let [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    // Load chat history from local storage when component mounts
+    const storedMessages = localStorage.getItem('chatMessages');
+    if (storedMessages) {
+      setMessages(JSON.parse(storedMessages));
+    }
+  }, []); // Empty dependency array ensures the effect runs only once
+
+  // Update local storage whenever messages state changes
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };
 
+  const handleClearStorage = () => {
+    localStorage.removeItem("chatMessages")
+    console.log(localStorage.length);
+    for (let i =0;i<messages.length;i++) {
+      messages.pop();
+    }
+    const divElement = document.getElementById('messagesContainer');
+    divElement.innerHTML='';
+  };
+
   const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
       // Add user message to the chat
-      setMessages([...messages, { text: inputValue, sender: 'user' }]);
+      //setMessages([...messages, { text: inputValue, sender: 'user' }]);
       
       // Make an API call to send user input to the server
       axios.post('http://localhost:3001/msg', {
@@ -37,7 +60,7 @@ function App() {
   return (
     <div className="App">
       <div className="chat-container">
-        <div className="messages">
+        <div id="messagesContainer" className="messages">
           {messages.map((message, index) => (
             <div key={index} className={`message ${message.sender}`}>
               {message.text}
@@ -57,6 +80,7 @@ function App() {
             }}
           />
           <button onClick={handleSendMessage}>Send</button>
+          <button onClick={handleClearStorage}>Clear</button>
         </div>
       </div>
     </div>
