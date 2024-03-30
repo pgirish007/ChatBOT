@@ -13,12 +13,14 @@
   padding: 10px;
   height: 300px;
   overflow-y: auto;
+  background: aliceblue;
 }
 
 .message {
   margin-bottom: 10px;
   padding: 5px 10px;
   border-radius: 5px;
+  
 }
 
 .user {
@@ -27,7 +29,7 @@
 }
 
 .bot {
-  background-color: #e0e0e0;
+  background-color: #f3adad;
 }
 
 .input-container {
