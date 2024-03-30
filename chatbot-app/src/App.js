@@ -24,11 +24,11 @@ function App() {
   };
 
   const handleClearStorage = () => {
-    localStorage.removeItem("chatMessages")
-    console.log(localStorage.length);
-    for (let i =0;i<messages.length;i++) {
+    while (messages.length <=0) {
       messages.pop();
     }
+    localStorage.removeItem("chatMessages")
+    console.log(localStorage.length);
     const divElement = document.getElementById('messagesContainer');
     divElement.innerHTML='';
   };
@@ -61,10 +61,10 @@ function App() {
     <div className="App">
       <div className="chat-container">
         <div id="messagesContainer" className="messages">
-          {messages.map((message, index) => (
-            <div key={index} className={`message ${message.sender}`}>
-              {message.text}
-            </div>
+          {messages.length > 0 && messages.map((message, index) => (
+              <div key={index} className={`message ${message.sender}`}>
+                {message.text}
+              </div>
           ))}
         </div>
         <div className="input-container">
