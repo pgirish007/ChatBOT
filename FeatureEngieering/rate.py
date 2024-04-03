@@ -15,24 +15,25 @@ def generate_skill_matrix(employee_name, rating, data):
         # Extract skills known by the employee
         employee_skills = ', '.join(employee_data['Skills']).split(', ')
 
-        # Create a dictionary to store skill weights for each role
-        role_skill_weights = {
+        # Create a dictionary to store skill weights and associated learning resources for each role
+        role_skill_info = {
             'Data Scientist': {
-                'Python': 3,
-                'SQL': 2,
-                'Machine Learning': 4,
-                'Data Analysis': 3,'Architecutre':5
-            },
+                'Python': {'weight': 3, 'learning': 'Complete Python Crash Course on Coursera'},
+                'SQL': {'weight': 2, 'learning': 'Master SQL: A Beginner to Expert Course on Udemy'},
+                'Machine Learning': {'weight': 4, 'learning': 'Machine Learning A-Z™: Hands-On Python & R In Data Science on Udemy'},
+                'Data Analysis': {'weight': 3, 'learning': 'Data Analysis and Visualization with Python on Coursera'},
+        	'Architecture': {'weight': 5, 'learning': 'Data Analysis and Visualization and architecture principle from the Princeton'}    
+	},
             'Software Engineer': {
-                'Java': 3,
-                'HTML': 2,
-                'CSS': 2
+                'Java': {'weight': 3, 'learning': 'Java Programming Masterclass for Software Developers on Udemy'},
+                'HTML': {'weight': 2, 'learning': 'HTML, CSS, and Javascript for Web Developers on Coursera'},
+                'CSS': {'weight': 2, 'learning': 'The Complete CSS Flexbox Guide With a Complete Project 2021 on Udemy'}
             },
             'Data Analyst': {
-                'Python': 3,
-                'Data Analysis': 3
+                'Python': {'weight': 3, 'learning': 'Python for Data Science and Machine Learning Bootcamp on Udemy'},
+                'Data Analysis': {'weight': 3, 'learning': 'Data Analysis with Python: Zero to Pandas on Jovian.ml'}
             }
-            # Add more roles and their respective skills and weights as needed
+            # Add more roles and their respective skills, weights, and learning resources as needed
         }
 
         # Initialize dictionaries to store known and missing skills
@@ -42,15 +43,15 @@ def generate_skill_matrix(employee_name, rating, data):
         # Get the employee's role
         employee_role = employee_data['Job Role'].iloc[0]
 
-        # Get skill weights for the employee's role
-        skill_weights = role_skill_weights[employee_role]
+        # Get skill information for the employee's role
+        role_skills_info = role_skill_info[employee_role]
 
         # Populate known skills and missing skills based on rating
-        for skill, weight in skill_weights.items():
+        for skill, info in role_skills_info.items():
             if skill in employee_skills:
-                known_skills[skill] = weight
-            elif weight > rating:
-                missing_skills[skill] = weight
+                known_skills[skill] = info
+            elif info['weight'] > rating:
+                missing_skills[skill] = info
 
         return {'Known Skills': known_skills, 'Missing Skills': missing_skills}
 
@@ -71,5 +72,5 @@ data = {
 employee_name = input("Enter employee name: ")
 rating = int(input("Enter the rating: "))
 skill_matrix = generate_skill_matrix(employee_name, rating, data)
-print("Known and missing skills for", employee_name, "higher than rating", rating, ":", skill_matrix)
+print("Known and missing skills for\n '", employee_name, "'\n higher than rating '", rating, "' :", skill_matrix)
 
