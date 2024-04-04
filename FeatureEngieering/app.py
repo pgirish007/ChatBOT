@@ -1,8 +1,12 @@
 import json
 import pandas as pd
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+import schedule
+import time
 
 app = Flask(__name__)
+CORS(app)
 
 # Global variable to store cached role_skill_info
 cached_role_skill_info = None
@@ -74,6 +78,22 @@ def generate_skill_matrix_api():
     result, status_code = generate_skill_matrix(employee_name, rating, data)
     return jsonify(result), status_code
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def update_role_skill_info():
+    load_role_skill_info()
 
+# Schedule the task to update role_skill_info once a day at midnight
+schedule.every().day.at("00:00").do(update_role_skill_info)
+
+# Function to run the scheduled tasks
+def run_scheduled_tasks():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+if __name__ == '__main__':
+    # Start a separate thread to run scheduled tasks
+    import threading
+    threading.Thread(target=run_scheduled_tasks).start()
+    
+    # Run the Flask app
+    app.run(debug=True)
