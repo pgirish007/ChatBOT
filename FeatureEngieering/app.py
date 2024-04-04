@@ -22,25 +22,21 @@ def load_cached_role_skill_info():
 
 def generate_skill_matrix(employee_name, rating, data):
     try:
-        # Load data into a Pandas DataFrame
-        df = pd.DataFrame(data)
-        
-        # Filter data for the specified employee
-        employee_data = df[df['Name'] == employee_name]
-        
         # Check if the employee exists
-        if employee_data.empty:
+        if employee_name not in data:
             return {"error": "Employee not found!"}, 404
         
+        employee_data = data[employee_name]
+        
         # Extract skills known by the employee
-        employee_skills = set(employee_data['Skills'].iloc[0].split(', '))
+        employee_skills = set(employee_data['Skills'].split(', '))
         
         # Initialize dictionaries to store known and missing skills
         known_skills = {}
         missing_skills = {}
 
         # Get the employee's role
-        employee_role = employee_data['Job Role'].iloc[0]
+        employee_role = employee_data['Job Role']
         
         # Get skill information for the employee's role
         role_skills_info = cached_role_skill_info.get(employee_role, {})
@@ -66,13 +62,26 @@ def generate_skill_matrix_api():
     employee_name = request.args.get('employee_name')
     rating = int(request.args.get('rating'))
     
-    # Sample dataset (replace with your actual dataset)
+    # Sample data (replace with your actual data)
     data = {
-        'Name': ['John', 'Alice', 'Bob'],
-        'Skills': ['Python, SQL, Machine Learning', 'Java, HTML, CSS', 'Python, Data Analysis'],
-        'Proficiency': ['Intermediate, Intermediate, Advanced', 'Intermediate, Beginner, Beginner', 'Advanced, Intermediate'],
-        'Job Role': ['Data Scientist', 'Software Engineer', 'Data Analyst'],
-        'Industry': ['IT', 'IT', 'Finance']
+        'John': {
+            'Skills': 'Python, SQL, Machine Learning',
+            'Proficiency': 'Intermediate, Intermediate, Advanced',
+            'Job Role': 'Data Scientist',
+            'Industry': 'IT'
+        },
+        'Alice': {
+            'Skills': 'Java, HTML, CSS',
+            'Proficiency': 'Intermediate, Beginner, Beginner',
+            'Job Role': 'Software Engineer',
+            'Industry': 'IT'
+        },
+        'Bob': {
+            'Skills': 'Python, Data Analysis',
+            'Proficiency': 'Advanced, Intermediate',
+            'Job Role': 'Data Analyst',
+            'Industry': 'Finance'
+        }
     }
     
     result, status_code = generate_skill_matrix(employee_name, rating, data)
