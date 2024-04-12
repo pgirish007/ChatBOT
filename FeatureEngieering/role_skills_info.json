@@ -1,0 +1,45 @@
+{
+  "Data Scientist": {
+    "Python": {
+      "weight": 0.8,
+      "learning_message": "Python is an essential programming language for data science. Learn about data manipulation, analysis, and visualization libraries like Pandas, NumPy, and Matplotlib."
+    },
+    "SQL": {
+      "weight": 0.7,
+      "learning_message": "SQL (Structured Query Language) is crucial for working with relational databases. Learn how to write SQL queries to retrieve, manipulate, and analyze data."
+    },
+    "Machine Learning": {
+      "weight": 0.9,
+      "learning_message": "Machine Learning involves building predictive models from data. Learn about algorithms like linear regression, decision trees, and neural networks."
+    }
+  },
+  "Software Engineer": {
+    "Java": {
+      "weight": 0.7,
+      "learning_message": "Java is a widely-used programming language for building applications. Learn about object-oriented programming concepts, data structures, and algorithms."
+    },
+    "HTML": {
+      "weight": 0.6,
+      "learning_message": "HTML (Hypertext Markup Language) is used to create the structure of web pages. Learn about tags, elements, and attributes used in HTML."
+    },
+    "CSS": {
+      "weight": 0.5,
+      "learning_message": "CSS (Cascading Style Sheets) is used for styling web pages. Learn about selectors, properties, and values used to apply styles to HTML elements."
+    }
+  },
+  "Data Analyst": {
+    "Python": {
+      "weight": 0.8,
+      "learning_message": "Python is a versatile programming language used for data analysis and visualization. Learn about libraries like Pandas, NumPy, and Matplotlib."
+    },
+    "Data Analysis": {
+      "weight": 0.7,
+      "learning_message": "Data Analysis involves examining data sets to draw conclusions. Learn about statistical methods, data visualization, and exploratory data analysis techniques."
+    },
+    "Statistics": {
+      "weight": 0.6,
+      "learning_message": "Statistics is the study of data analysis and interpretation. Learn about probability distributions, hypothesis testing, and regression analysis."
+    }
+  }
+}
+
