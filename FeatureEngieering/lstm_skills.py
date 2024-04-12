@@ -27,52 +27,69 @@ def preprocess_skill_sequences(skill_sequences):
     sequences_array = np.array(skill_sequences)
     return sequences_array
 
+def create_lstm_model(input_shape):
+    model = Sequential()
+    model.add(LSTM(50, input_shape=input_shape, activation='relu', return_sequences=True))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    return model
+
+def train_lstm_model(skill_sequences):
+    processed_sequences = preprocess_skill_sequences(skill_sequences)
+    X, y = processed_sequences[:, :-1], processed_sequences[:, -1]
+    X = X.reshape((X.shape[0], X.shape[1], 1))
+    model = create_lstm_model((X.shape[1], 1))
+    model.fit(X, y, epochs=100, verbose=0)
+    return model
+
 def generate_skill_matrix(employee_name, rating, data):
     try:
+        # Find the employee by name
+        employee = next((emp for emp in data['employees'] if emp['name'] == employee_name), None)
+        
         # Check if the employee exists
-        if employee_name not in data:
+        if not employee:
             return {"error": "Employee not found!"}, 404
         
-        employee_data = data[employee_name]
-        skill_sequences = employee_data['SkillSequences']
+        role = employee['role']
+        skill_sequences = employee['SkillSequences']
         
-        # Preprocess skill sequences
-        processed_sequences = preprocess_skill_sequences(skill_sequences)
+        # Train LSTM model
+        lstm_model = train_lstm_model(skill_sequences)
         
         # Load cached role_skill_info
         load_role_skill_info()
         
-        # Create output dictionary to store predicted sequences, associated learning messages, and missing skills
-        output = {'predicted_sequences': [], 'missing_skills': []}
+        # Create output dictionary to store predicted sequences and missing skills
+        output = {'matching_skills': [], 'missing_skills': []}
         
-        # Iterate over each skill sequence
-        for sequence in processed_sequences:
-            # Placeholder for predicted sequence (using same sequence as input for illustration)
-            predicted_sequence = sequence.tolist()
-            predicted_skills = []
-            missing_skills = []
+        # Predict proficiency for each skill sequence
+        for sequence in skill_sequences:
+            X_test = np.array(sequence[:-1]).reshape((1, len(sequence)-1, 1))
+            predicted_proficiency = lstm_model.predict(X_test)[0][0]
+            skill_name = list(cached_role_skill_info.keys())[sequence.index(max(sequence))]
+            learning_message = cached_role_skill_info[skill_name].get('learning_message', '')
             
-            # Retrieve associated learning messages and check for missing skills
-            for skill_index, skill_value in enumerate(sequence):
-                skill_name = list(cached_role_skill_info.keys())[skill_index]
-                learning_message = cached_role_skill_info[skill_name].get('learning_message', '')
-                
-                if skill_value < rating:
-                    missing_skills.append({
-                        'skill_name': skill_name,
-                        'required_rating': rating,
-                        'predicted_proficiency': skill_value,
-                        'learning_message': learning_message
-                    })
-                
-                predicted_skills.append({
+            if predicted_proficiency >= rating:
+                output['matching_skills'].append({
                     'skill_name': skill_name,
-                    'predicted_proficiency': skill_value,
+                    'predicted_proficiency': predicted_proficiency,
                     'learning_message': learning_message
                 })
-            
-            output['predicted_sequences'].append(predicted_skills)
-            output['missing_skills'].append(missing_skills)
+            else:
+                output['missing_skills'].append({
+                    'skill_name': skill_name,
+                    'required_rating': rating,
+                    'predicted_proficiency': predicted_proficiency,
+                    'learning_message': learning_message
+                })
+        
+        # Convert numpy arrays to lists
+        for key, value in output.items():
+            for item in value:
+                for k, v in item.items():
+                    if isinstance(v, np.ndarray):
+                        item[k] = v.tolist()
         
         return output, 200
 
@@ -84,30 +101,9 @@ def generate_skill_matrix_api():
     employee_name = request.args.get('employee_name')
     rating = int(request.args.get('rating'))
     
-    # Sample dataset (replace with your actual dataset)
-    data = {
-        'John': {
-            'SkillSequences': [
-                [0.8, 0.7, 0.9],  # Skill vector at time step 1
-                [0.85, 0.75, 0.92],  # Skill vector at time step 2
-                [0.9, 0.8, 0.95]  # Skill vector at time step 3
-            ]
-        },
-        'Alice': {
-            'SkillSequences': [
-                [0.6, 0.5, 0.4],  # Skill vector at time step 1
-                [0.65, 0.55, 0.45],  # Skill vector at time step 2
-                [0.7, 0.6, 0.5]  # Skill vector at time step 3
-            ]
-        },
-        'Bob': {
-            'SkillSequences': [
-                [0.75, 0.65, 0.55],  # Skill vector at time step 1
-                [0.8, 0.7, 0.6],  # Skill vector at time step 2
-                [0.85, 0.75, 0.65]  # Skill vector at time step 3
-            ]
-        }
-    }
+    # Load the input data from JSON file
+    with open('input_employee_data.json') as f:
+        data = json.load(f)
     
     result, status_code = generate_skill_matrix(employee_name, rating, data)
     return jsonify(result), status_code
@@ -131,4 +127,3 @@ if __name__ == '__main__':
     
     # Run the Flask app
     app.run(debug=True)
-
