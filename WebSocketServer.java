@@ -42,3 +42,34 @@ public class WebSocketServer {
 
 
 // WebSocketServer.notifyAllClients("Server update: some change has occurred.");
+/*
+ * 
+ * <!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+    <script>
+        var socket = new WebSocket("ws://localhost:8080/your-context-path/websocket");
+
+        socket.onopen = function(event) {
+            console.log("WebSocket connection opened.");
+        };
+
+        socket.onmessage = function(event) {
+            console.log("Message from server: " + event.data);
+        };
+
+        function sendMessage() {
+            var message = document.getElementById("messageInput").value;
+            socket.send(message);
+        }
+    </script>
+</head>
+<body>
+    <h1>WebSocket Example</h1>
+    <input type="text" id="messageInput" placeholder="Enter message">
+    <button onclick="sendMessage()">Send</button>
+</body>
+</html>
+
+ */
