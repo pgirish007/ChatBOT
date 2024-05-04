@@ -6,8 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  pages = ['Form Builder', 'Form Renderer', 'Form Reader'];
-  currentPage = 'Form Builder';
+  pages = ['Construct', 'Generate', 'Retrieve'];
+  currentPage = 'Construct';
   form: Object;
   submission: Object;
   initialForm: Object;
