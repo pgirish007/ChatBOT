@@ -369,6 +369,11 @@ builder for the user to fill up. After submitting the form, a JSON will be creat
 
 ## Development server
 
+npm install --save --legacy-peer-deps
+npm audit fix --legacy-peer-deps
+ng serve      
+OR npm ng serve
+
 Run `npm run serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
 ## Build
