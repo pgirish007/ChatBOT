@@ -196,7 +196,7 @@ export const options = {
     day: defaultEditFormOptions,
     time: defaultEditFormOptions,
     currency: defaultEditFormOptions,
-    signature: defaultEditFormOptions,
+    mysignature: defaultEditFormOptions,
     htmlelement: defaultEditFormOptions,
     content: defaultEditFormOptions,
     columns: defaultEditFormOptions,
