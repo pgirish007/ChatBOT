@@ -1,0 +1,6 @@
+[
+    { "type": "h1", "content": "Welcome to the Angular App" },
+    { "type": "p", "content": "This is a dynamically generated paragraph." },
+    { "type": "button", "content": "Click Me" }
+  ]
+  
