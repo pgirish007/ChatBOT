@@ -1,0 +1,154 @@
+package com.example;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Random;
+
+@WebServlet("/spin")
+public class SpinWheelServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    
+    private static final String[] PRIZES = {
+        "Task A", "Task B", "Reward C", "Reward D", "Task E", "Task F"
+    };
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Random random = new Random();
+        int prizeIndex = random.nextInt(PRIZES.length);
+        String prize = PRIZES[prizeIndex];
+
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        out.print("{ \"prize\": \"" + prize + "\" }");
+        out.flush();
+    }
+}
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spin the Wheel</title>
+    <link rel="stylesheet" href="spin-wheel.css">
+</head>
+<body>
+    <div class="wheel-container">
+        <canvas id="wheel" width="400" height="400"></canvas>
+        <button id="spinBtn">Spin the Wheel</button>
+    </div>
+    <div id="result"></div>
+    <script src="spin-wheel.js"></script>
+</body>
+</html>
+
+
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.wheel-container {
+    text-align: center;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+*****
+
+const wheel = document.getElementById('wheel');
+const context = wheel.getContext('2d');
+const spinBtn = document.getElementById('spinBtn');
+const resultDiv = document.getElementById('result');
+
+const prizes = ["Task A", "Task B", "Reward C", "Reward D", "Task E", "Task F"];
+const colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"];
+const numPrizes = prizes.length;
+
+const drawWheel = () => {
+    const arcSize = Math.PI * 2 / numPrizes;
+    for (let i = 0; i < numPrizes; i++) {
+        context.beginPath();
+        context.fillStyle = colors[i];
+        context.moveTo(200, 200);
+        context.arc(200, 200, 200, arcSize * i, arcSize * (i + 1));
+        context.lineTo(200, 200);
+        context.fill();
+        context.closePath();
+    }
+};
+
+let angle = 0;
+
+const spinWheel = () => {
+    const spinTime = Math.random() * 3000 + 2000; // 2 to 5 seconds
+    const spinAngleStart = Math.random() * 360;
+    const spinAngle = spinAngleStart + spinTime / 10;
+    let start = null;
+
+    const rotate = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        angle = (spinAngle * progress) / spinTime;
+        if (angle >= spinAngle) angle = spinAngle;
+        context.clearRect(0, 0, 400, 400);
+        context.save();
+        context.translate(200, 200);
+        context.rotate((angle * Math.PI) / 180);
+        context.translate(-200, -200);
+        drawWheel();
+        context.restore();
+        if (progress < spinTime) {
+            requestAnimationFrame(rotate);
+        } else {
+            getPrize();
+        }
+    };
+    requestAnimationFrame(rotate);
+};
+
+const getPrize = () => {
+    fetch('/spin')
+        .then(response => response.json())
+        .then(data => {
+            resultDiv.innerText = `You won: ${data.prize}`;
+        });
+};
+
+spinBtn.addEventListener('click', spinWheel);
+drawWheel();
+
+
+*****
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <servlet>
+        <servlet-name>SpinWheelServlet</servlet-name>
+        <servlet-class>com.example.SpinWheelServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpinWheelServlet</servlet-name>
+        <url-pattern>/spin</url-pattern>
+    </servlet-mapping>
+</web-app>
