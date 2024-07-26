@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tabbed Interface</title>
+    <style>
+        .tab-content { display: none; }
+        .active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <button class="tab-link" data-tab="home">Home</button>
+        <button class="tab-link" data-tab="about">About</button>
+        <button class="tab-link" data-tab="contact">Contact</button>
+    </div>
+
+    <div id="home" class="tab-content">Home Content</div>
+    <div id="about" class="tab-content">About Content</div>
+    <div id="contact" class="tab-content">Contact Content</div>
+
+    <script src="tabs.js"></script>
+</body>
+</html>
