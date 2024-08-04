@@ -65,3 +65,17 @@ def generate():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+'''
+example json:
+{
+    "collection": {
+        "type": "test",
+        "elements": {
+            "title": [
+                {"label": "Services", "name":"Girish","placeholder":"This is Girish Pandit", "type": "INPUT_TEXT"}
+            ]
+        }
+    }
+}
+'''
