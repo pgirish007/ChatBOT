@@ -1,20 +1,8 @@
 from flask import Flask, request, render_template_string
 import json
+import importlib
 
 app = Flask(__name__)
-
-# Define Python classes for HTML elements
-class InputText:
-    def generate(self):
-        return f'<input type="text" name="{self.name}" placeholder="{self.placeholder}">'
-
-class InputDate:
-    def generate(self):
-        return f'<input type="date" name="{self.name}">'
-
-class InputNumber:
-    def generate(self):
-        return f'<input type="number" name="{self.name}" min="{self.min_value}" max="{self.max_value}">'
 
 def set_attributes(instance, attributes):
     for attr, value in attributes.items():
@@ -31,10 +19,13 @@ def set_attributes(instance, attributes):
 
 def create_element(element_data):
     element_type = element_data.pop('type')
-    class_name = ''.join([word.capitalize() for word in element_type.split('_')])
-    element_class = globals().get(class_name)
-
-    if not element_class:
+    module_name = f'elements.{element_type.lower()}'  # e.g., elements.input_text
+    class_name = ''.join([word.capitalize() for word in element_type.split('_')])  # e.g., InputText
+    
+    try:
+        module = importlib.import_module(module_name)
+        element_class = getattr(module, class_name)
+    except (ModuleNotFoundError, AttributeError) as e:
         raise ValueError(f"Unknown element type: {element_type}")
 
     element_instance = element_class()
@@ -43,7 +34,7 @@ def create_element(element_data):
 
 @app.route('/')
 def index():
-    return render_template_string(open('index.html').read())
+    return render_template_string(open('templates/index.html').read())
 
 @app.route('/generate', methods=['POST'])
 def generate():
@@ -65,6 +56,7 @@ def generate():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 '''
 example json:
