@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 import json
 import importlib
 
@@ -34,7 +34,7 @@ def create_element(element_data):
 
 @app.route('/')
 def index():
-    return render_template_string(open('templates/index.html').read())
+    return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate():
@@ -50,13 +50,12 @@ def generate():
                 html_elements.append(create_element(element_data).generate())
         
         form_html = "\n".join(html_elements)
-        return render_template_string('<html><body>{{ form_html|safe }}</body></html>', form_html=form_html)
+        return render_template('form.html', form_html=form_html)
     except Exception as e:
         return str(e)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 '''
 example json:
