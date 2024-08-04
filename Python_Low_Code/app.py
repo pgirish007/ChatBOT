@@ -19,8 +19,8 @@ def set_attributes(instance, attributes):
 
 def create_element(element_data):
     element_type = element_data.pop('type')
-    module_name = f'elements.{element_type.lower()}'  # e.g., elements.input_text
-    class_name = ''.join([word.capitalize() for word in element_type.split('_')])  # e.g., InputText
+    class_name = ''.join([word.capitalize() for word in element_type.split('_')])
+    module_name = f'elements.{class_name}'  # Module name matches class name
     
     try:
         module = importlib.import_module(module_name)
