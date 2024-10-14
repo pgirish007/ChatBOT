@@ -1,0 +1,26 @@
+.App {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.summary, .notifications, .vuln-list, .vuln-details {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+}
+
+.vuln-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.vuln-list li {
+  cursor: pointer;
+  margin: 5px 0;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+.vuln-list li:hover {
+  background-color: #f0f0f0;
+}
