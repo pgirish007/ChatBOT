@@ -3,29 +3,44 @@ import VulnerabilitySummary from "./components/VulnerabilitySummary";
 import VulnerabilityList from "./components/VulnerabilityList";
 import VulnerabilityDetails from "./components/VulnerabilityDetails";
 import Notifications from "./components/Notifications";
-import data from "./data/vulnerabilities.json"; // Simulate data
 
 function App() {
+  const [vulnerabilities, setVulnerabilities] = useState([]);
   const [selectedVulnerability, setSelectedVulnerability] = useState(null);
   const [filteredVulnerabilities, setFilteredVulnerabilities] = useState([]);
   const [severityFilter, setSeverityFilter] = useState("");
 
   useEffect(() => {
+    // Fetch the vulnerability data from the REST API
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/vulnerabilities");
+        const data = await response.json();
+        setVulnerabilities(data);
+        setFilteredVulnerabilities(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     // Apply severity filter
     if (severityFilter === "") {
-      setFilteredVulnerabilities(data);
+      setFilteredVulnerabilities(vulnerabilities);
     } else {
       setFilteredVulnerabilities(
-        data.filter((vuln) => vuln.severity === severityFilter)
+        vulnerabilities.filter((vuln) => vuln.severity === severityFilter)
       );
     }
-  }, [severityFilter]);
+  }, [severityFilter, vulnerabilities]);
 
   return (
     <div className="App">
-      <h1>Vulnerability Dashboard</h1>
-      <Notifications data={data} />
-      <VulnerabilitySummary data={data} />
+      <Notifications data={vulnerabilities} />
+      <VulnerabilitySummary data={vulnerabilities} />
       <div style={{ display: "flex" }}>
         <VulnerabilityList
           vulnerabilities={filteredVulnerabilities}
