@@ -3,6 +3,7 @@ import VulnerabilitySummary from "./components/VulnerabilitySummary";
 import VulnerabilityList from "./components/VulnerabilityList";
 import VulnerabilityDetails from "./components/VulnerabilityDetails";
 import Notifications from "./components/Notifications";
+import VulnerabilityChart from "./components/VulnerabilityChart";
 
 function App() {
   const [vulnerabilities, setVulnerabilities] = useState([]);
@@ -41,6 +42,11 @@ function App() {
     <div className="App">
       <Notifications data={vulnerabilities} />
       <VulnerabilitySummary data={vulnerabilities} />
+
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <VulnerabilityChart data={vulnerabilities} />
+      </div>
+
       <div style={{ display: "flex" }}>
         <VulnerabilityList
           vulnerabilities={filteredVulnerabilities}
