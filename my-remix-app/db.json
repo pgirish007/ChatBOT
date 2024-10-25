@@ -1,0 +1,44 @@
+{
+    "vulnerabilities":[
+        {
+          "id": "VULN-001",
+          "title": "SQL Injection in User Login",
+          "description": "SQL injection vulnerability in the user login form.",
+          "severity": "Critical",
+          "components": "Authentication Module",
+          "fixAvailable": true
+        },
+        {
+          "id": "VULN-002",
+          "title": "Cross-Site Scripting (XSS) in Search Bar",
+          "description": "Reflected XSS in the site-wide search bar.",
+          "severity": "High",
+          "components": "UI Module",
+          "fixAvailable": true
+        },
+        {
+          "id": "VULN-003",
+          "title": "Outdated Library Vulnerability",
+          "description": "Old version of jQuery is vulnerable to XSS.",
+          "severity": "Medium",
+          "components": "Frontend Libraries",
+          "fixAvailable": false
+        },{
+            "id": "VULN-004",
+            "title": "Cross-Site Scripting (XSS) in Search Bar",
+            "description": "Reflected XSS in the site-wide search bar.",
+            "severity": "Critical",
+            "components": "UI Module",
+            "fixAvailable": true
+          },
+          {
+            "id": "VULN-005",
+            "title": "Outdated Library Vulnerability",
+            "description": "Old version of jQuery is vulnerable to XSS.",
+            "severity": "Medium",
+            "components": "Frontend Libraries",
+            "fixAvailable": false
+          }
+      ]
+      
+}
