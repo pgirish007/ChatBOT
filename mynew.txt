@@ -12,12 +12,36 @@ Overall, [Colleague's Name] is an invaluable member of our team, combining knowl
 
 
 
-What is JSON Server?
-json-server is a lightweight, zero-configuration tool that allows developers to create a full-fledged REST API using just a simple JSON file. It is designed to mock backend APIs quickly, making it an essential tool for front-end development, testing, and prototyping.
+{
+  "servers": [
+    { "id": 1, "hostname": "server1", "status": "running" },
+    { "id": 2, "hostname": "server2", "status": "stopped" }
+  ],
+  "deployments": [
+    { "id": 1, "application": "web-app", "version": "1.2.0", "status": "success" },
+    { "id": 2, "application": "api-service", "version": "2.0.1", "status": "failed" }
+  ],
+  "errors": {
+    "not_found": {
+      "message": "Resource not found",
+      "status": 404
+    },
+    "bad_request": {
+      "message": "Invalid request parameters",
+      "status": 400
+    },
+    "server_error": {
+      "message": "Internal Server Error",
+      "status": 500
+    }
+  }
+}
 
-With json-server, you can:
-✅ Serve JSON data as a RESTful API with GET, POST, PUT, PATCH, and DELETE methods.
-✅ Simulate real-world API behavior, including error handling and authentication.
-✅ Use it as a mock backend for front-end development, eliminating the need to wait for backend services.
-✅ Integrate it with DevOps tools to mock infrastructure APIs for automation testing.
-
+{
+  "/servers/:id": "/servers/:id",
+  "/deployments/:id": "/deployments/:id",
+  "/error/404": "/errors/not_found",
+  "/error/400": "/errors/bad_request",
+  "/error/500": "/errors/server_error",
+  "*": "/error/404"
+}
