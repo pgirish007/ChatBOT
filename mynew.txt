@@ -8,3 +8,16 @@ Communication Skills:
 [Colleague's Name] excels in communication. They articulate their ideas clearly and concisely, making complex concepts easy to understand for everyone. They are also an active listener, which fosters an environment of mutual respect and collaboration. Their ability to communicate effectively across different teams and stakeholders has significantly improved our project's coordination and overall efficiency.
 
 Overall, [Colleague's Name] is an invaluable member of our team, combining knowledge, attentiveness, and strong communication skills to consistently deliver outstanding results.
+
+
+
+
+What is JSON Server?
+json-server is a lightweight, zero-configuration tool that allows developers to create a full-fledged REST API using just a simple JSON file. It is designed to mock backend APIs quickly, making it an essential tool for front-end development, testing, and prototyping.
+
+With json-server, you can:
+✅ Serve JSON data as a RESTful API with GET, POST, PUT, PATCH, and DELETE methods.
+✅ Simulate real-world API behavior, including error handling and authentication.
+✅ Use it as a mock backend for front-end development, eliminating the need to wait for backend services.
+✅ Integrate it with DevOps tools to mock infrastructure APIs for automation testing.
+
