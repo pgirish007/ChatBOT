@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embed HelloWorld with Shadow DOM</title>
+</head>
+<body>
+    <h1>Embedded HelloWorld.org Content</h1>
+    <div id="embed-container"></div>
+
+    <script>
+        async function loadExternalContent() {
+            const url = "https://www.google.com/"; // Target website
+            const container = document.getElementById("embed-container");
+
+            try {
+                // Fetch the external site's HTML content
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Failed to load content");
+
+                const text = await response.text();
+
+                // Create a shadow root
+                const shadowHost = document.createElement("div");
+                container.appendChild(shadowHost);
+                const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+
+                // Insert the fetched HTML into Shadow DOM
+                const contentWrapper = document.createElement("div");
+                contentWrapper.innerHTML = text;
+                shadowRoot.appendChild(contentWrapper);
+
+                // Execute scripts inside the fetched content
+                executeScripts(contentWrapper);
+
+            } catch (error) {
+                console.error("Error loading content:", error);
+                container.innerHTML = "<p>Failed to load content.</p>";
+            }
+        }
+
+        function executeScripts(element) {
+            const scripts = element.querySelectorAll("script");
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement("script");
+                newScript.textContent = oldScript.textContent; // Copy inline scripts
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+
+        loadExternalContent();
+    </script>
+</body>
+</html>
