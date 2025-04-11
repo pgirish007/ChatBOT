@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Inside Div Only</title>
+  <style>
+    #myDiv {
+      width: 300px;
+      height: 200px;
+      background-color: #f0f0f0;
+      border: 2px solid #333;
+      padding: 20px;
+      display: none;
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="showBtn">Show Div</button>
+  <div id="myDiv">
+    <p>Click inside this div will trigger action.</p>
+    <button id="closeBtn">Close Div</button>
+  </div>
+
+  <script>
+    const showBtn = document.getElementById('showBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const myDiv = document.getElementById('myDiv');
+
+    // Show div
+    showBtn.addEventListener('click', function () {
+      myDiv.style.display = 'block';
+      myDiv.style.width = '300px';
+
+      // Add click listener to whole document
+      document.addEventListener('click', handleDocumentClick);
+    });
+
+    // Close div
+    closeBtn.addEventListener('click', function () {
+      myDiv.style.width = '0';
+      setTimeout(() => {
+        myDiv.style.display = 'none';
+        // Remove the listener when div is closed
+        document.removeEventListener('click', handleDocumentClick);
+      }, 500); // matches CSS transition duration
+    });
+
+    // Handle clicks
+    function handleDocumentClick(e) {
+      if (myDiv.contains(e.target)) {
+        console.log("Clicked inside the div - action triggered.");
+        // You can add any action you want here
+      }
+      // If clicked outside, do nothing
+    }
+  </script>
+
+</body>
+</html>
