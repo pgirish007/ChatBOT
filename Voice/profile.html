@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hey Portal - Voice Assistant</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 60px;
+    }
+
+    #mic {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      font-size: 48px;
+      cursor: pointer;
+      color: gray;
+      transition: color 0.3s ease;
+      z-index: 1000;
+    }
+
+    #mic.listening {
+      color: red;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
+
+    #log {
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Click the mic once, then say "Hey Portal"</h2>
+  <div id="mic">🎤</div>
+  <div id="log"></div>
+
+  <script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    const micIcon = document.getElementById("mic");
+    const log = document.getElementById("log");
+
+    let isActive = false;
+    let transcriptBuffer = "";
+    let isSpeaking = false;
+    let lastSpokenText = "";
+    let lastSpokenTime = 0;
+
+    const urlMap = {
+      "dashboard": "dashboard.html",
+      "profile": "profile.html",
+      "settings": "settings.html",
+      "home": "index.html"
+    };
+
+
+    function logMessage(msg) {
+      console.log(msg);
+      log.textContent = msg;
+    }
+
+    function updateMic(active) {
+      micIcon.classList.toggle("listening", active);
+    }
+
+    function isLikelyEcho(userInput, assistantOutput) {
+      if (!userInput || !assistantOutput) return false;
+      const now = Date.now();
+      const timeSinceSpoken = now - lastSpokenTime;
+      if (timeSinceSpoken > 3000) return false;
+
+      const inputWords = userInput.toLowerCase().split(/\s+/);
+      const outputWords = assistantOutput.toLowerCase().split(/\s+/);
+      const overlap = inputWords.filter(word => outputWords.includes(word)).length;
+      const similarity = overlap / Math.max(inputWords.length, outputWords.length);
+
+      return similarity > 0.8;
+    }
+
+    function speak(text) {
+      const synth = window.speechSynthesis;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.onstart = () => {
+        isSpeaking = true;
+      };
+      utter.onend = () => {
+        isSpeaking = false;
+        lastSpokenText = text;
+        lastSpokenTime = Date.now();
+      };
+      synth.speak(utter);
+    }
+
+    function handleNavigation(command) {
+      const words = command.split(/\s+/);
+      const keyword = words.find(word => urlMap[word]);
+      if (keyword) {
+        speak("Opening " + keyword);
+        setTimeout(() => {
+          window.location.href = urlMap[keyword];
+        }, 1000);
+        return true;
+      }
+      return false;
+    }
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const text = result[0].transcript.trim().toLowerCase();
+        if (result.isFinal) {
+          transcriptBuffer = text;
+          logMessage("Heard: " + transcriptBuffer);
+
+          if (!isActive && transcriptBuffer.includes("hey portal")) {
+            isActive = true;
+            sessionStorage.setItem("portalActive", "true");
+            updateMic(true);
+            speak("Hi, I’m listening.");
+          } else if (isActive) {
+            if (isLikelyEcho(transcriptBuffer, lastSpokenText)) {
+              logMessage("🔇 Ignored likely echo: " + transcriptBuffer);
+              transcriptBuffer = '';
+              return;
+            }
+
+            if (transcriptBuffer.includes("stop") || transcriptBuffer.includes("goodbye")) {
+              isActive = false;
+              sessionStorage.removeItem("portalActive");
+              updateMic(false);
+              speak("Okay, talk to you later.");
+            } else if (/navigate|go to|open/.test(transcriptBuffer)) {
+              if (!handleNavigation(transcriptBuffer)) {
+                speak("Sorry, I don't recognize that page.");
+              }
+            } else {
+              speak("You said: " + transcriptBuffer);
+            }
+          }
+
+          transcriptBuffer = '';
+        } else {
+          interimTranscript += text;
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      logMessage("❌ Error: " + event.error);
+      if (event.error === 'not-allowed') {
+        alert("Microphone access denied. Please allow it in your browser settings.");
+      }
+    };
+
+    recognition.onend = () => {
+      if (isActive || !isSpeaking) {
+        try {
+          recognition.start(); // prevent multiple starts
+        } catch (e) {
+          console.warn("Recognition already started.");
+        }
+      }
+    };
+
+    micIcon.addEventListener('click', () => {
+      try {
+        recognition.start();
+        logMessage("🎙️ Mic started. Say 'Hey Portal'");
+      } catch (e) {
+        console.warn("Already started");
+      }
+    });
+
+    // Auto-activate mic if user session is active
+    if (sessionStorage.getItem("portalActive") === "true") {
+      isActive = true;
+      updateMic(true);
+      try {
+        recognition.start();
+        logMessage("🎙️ Listening...");
+      } catch (e) {
+        console.warn("Recognition already started.");
+      }
+    }
+
+    window.onbeforeunload = () => {
+      recognition.stop();
+    };
+  </script>
+</body>
+</html>
