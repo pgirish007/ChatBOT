@@ -41,7 +41,7 @@
 </head>
 <body>
   <h2>Click the mic once, then say "Hey Portal"</h2>
-  <img id="mic" src="voice.png" alt="Mic Icon">
+  <img id="mic" src="https://cdn-icons-png.flaticon.com/512/61/61088.png" alt="Mic Icon">
   <div id="log"></div>
 
   <script>
@@ -91,7 +91,7 @@
 
       utter.onstart = () => {
         isSpeaking = true;
-        recognition.abort(); // stop mic while speaking
+        recognition.abort();
         updateMic(false);
       };
 
@@ -112,8 +112,15 @@
     }
 
     async function handleCommand(command) {
+      const lower = command.toLowerCase();
+      let endpoint = "/api/parse-command";
+
+      if (lower.startsWith("search")) {
+        endpoint = "/api/search-controller";
+      }
+
       try {
-        const response = await fetch("/api/parse-command", {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -127,6 +134,9 @@
         if (data.action === "redirect" && data.url) {
           speak(`Okay, going to ${data.url}`);
           window.location.href = data.url;
+        } else if (data.action === "search" && data.results) {
+          speak(`I found ${data.results.length} result${data.results.length !== 1 ? 's' : ''}.`);
+          // You can display them here too if you want
         } else {
           speak("You said: " + command);
         }
@@ -161,7 +171,7 @@
               updateMic(false);
               speak("Okay, talk to you later.");
             } else {
-              handleCommand(transcriptBuffer); // 🔥 new logic
+              handleCommand(transcriptBuffer);
             }
           }
 
@@ -181,7 +191,7 @@
 
     recognition.onend = () => {
       if (isActive || !isSpeaking) {
-        recognition.start(); // keep listening
+        recognition.start();
       }
     };
 
@@ -194,7 +204,6 @@
       recognition.stop();
     };
 
-    // Resume mic if session was active
     window.onload = () => {
       if (isActive) {
         recognition.start();
