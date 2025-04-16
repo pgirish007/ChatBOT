@@ -11,18 +11,17 @@
     }
 
     #mic {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
       position: fixed;
       bottom: 30px;
       right: 30px;
-      font-size: 48px;
-      cursor: pointer;
-      color: gray;
-      transition: color 0.3s ease;
       z-index: 1000;
+      transition: transform 0.3s ease;
     }
 
     #mic.listening {
-      color: red;
       animation: pulse 1s infinite;
     }
 
@@ -42,7 +41,7 @@
 </head>
 <body>
   <h2>Click the mic once, then say "Hey Portal"</h2>
-  <div id="mic">🎤</div>
+  <img id="mic" src="voice.png" alt="Mic Icon">
   <div id="log"></div>
 
   <script>
@@ -55,18 +54,11 @@
     const micIcon = document.getElementById("mic");
     const log = document.getElementById("log");
 
-    let isActive = false;
+    let isActive = sessionStorage.getItem("mic_active") === "true";
     let transcriptBuffer = "";
     let isSpeaking = false;
     let lastSpokenText = "";
     let lastSpokenTime = 0;
-
-    const urlMap = {
-      "dashboard": "dashboard.html",
-      "profile": "profile.html",
-      "settings": "settings.html",
-      "home": "index.html"
-    };
 
     function logMessage(msg) {
       console.log(msg);
@@ -75,10 +67,12 @@
 
     function updateMic(active) {
       micIcon.classList.toggle("listening", active);
+      sessionStorage.setItem("mic_active", active);
     }
 
     function isLikelyEcho(userInput, assistantOutput) {
       if (!userInput || !assistantOutput) return false;
+
       const now = Date.now();
       const timeSinceSpoken = now - lastSpokenTime;
       if (timeSinceSpoken > 3000) return false;
@@ -94,28 +88,52 @@
     function speak(text) {
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(text);
+
       utter.onstart = () => {
         isSpeaking = true;
+        recognition.abort(); // stop mic while speaking
+        updateMic(false);
       };
+
       utter.onend = () => {
         isSpeaking = false;
         lastSpokenText = text;
         lastSpokenTime = Date.now();
+
+        setTimeout(() => {
+          if (isActive) {
+            recognition.start();
+            updateMic(true);
+          }
+        }, 500);
       };
+
       synth.speak(utter);
     }
 
-    function handleNavigation(command) {
-      const words = command.split(/\s+/);
-      const keyword = words.find(word => urlMap[word]);
-      if (keyword) {
-        speak("Opening " + keyword);
-        setTimeout(() => {
-          window.location.href = urlMap[keyword];
-        }, 1000);
-        return true;
+    async function handleCommand(command) {
+      try {
+        const response = await fetch("/api/parse-command", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ command })
+        });
+
+        const data = await response.json();
+        console.log("API response:", data);
+
+        if (data.action === "redirect" && data.url) {
+          speak(`Okay, going to ${data.url}`);
+          window.location.href = data.url;
+        } else {
+          speak("You said: " + command);
+        }
+      } catch (err) {
+        console.error("API error:", err);
+        speak("Something went wrong processing your request.");
       }
-      return false;
     }
 
     recognition.onresult = (event) => {
@@ -129,27 +147,21 @@
 
           if (!isActive && transcriptBuffer.includes("hey portal")) {
             isActive = true;
-            sessionStorage.setItem("portalActive", "true");
             updateMic(true);
             speak("Hi, I’m listening.");
           } else if (isActive) {
             if (isLikelyEcho(transcriptBuffer, lastSpokenText)) {
-              logMessage("🔇 Ignored likely echo: " + transcriptBuffer);
+              logMessage("Ignored likely echo: " + transcriptBuffer);
               transcriptBuffer = '';
               return;
             }
 
             if (transcriptBuffer.includes("stop") || transcriptBuffer.includes("goodbye")) {
               isActive = false;
-              sessionStorage.removeItem("portalActive");
               updateMic(false);
               speak("Okay, talk to you later.");
-            } else if (/navigate|go to|open/.test(transcriptBuffer)) {
-              if (!handleNavigation(transcriptBuffer)) {
-                speak("Sorry, I don't recognize that page.");
-              }
             } else {
-              speak("You said: " + transcriptBuffer);
+              handleCommand(transcriptBuffer); // 🔥 new logic
             }
           }
 
@@ -161,7 +173,7 @@
     };
 
     recognition.onerror = (event) => {
-      logMessage("❌ Error: " + event.error);
+      logMessage("Error: " + event.error);
       if (event.error === 'not-allowed') {
         alert("Microphone access denied. Please allow it in your browser settings.");
       }
@@ -169,37 +181,25 @@
 
     recognition.onend = () => {
       if (isActive || !isSpeaking) {
-        try {
-          recognition.start(); // prevent multiple starts
-        } catch (e) {
-          console.warn("Recognition already started.");
-        }
+        recognition.start(); // keep listening
       }
     };
 
     micIcon.addEventListener('click', () => {
-      try {
-        recognition.start();
-        logMessage("🎙️ Mic started. Say 'Hey Portal'");
-      } catch (e) {
-        console.warn("Already started");
-      }
+      recognition.start();
+      logMessage("Mic started. Say 'Hey Portal'");
     });
-
-    // Auto-activate mic if user session is active
-    if (sessionStorage.getItem("portalActive") === "true") {
-      isActive = true;
-      updateMic(true);
-      try {
-        recognition.start();
-        logMessage("🎙️ Listening...");
-      } catch (e) {
-        console.warn("Recognition already started.");
-      }
-    }
 
     window.onbeforeunload = () => {
       recognition.stop();
+    };
+
+    // Resume mic if session was active
+    window.onload = () => {
+      if (isActive) {
+        recognition.start();
+        updateMic(true);
+      }
     };
   </script>
 </body>
