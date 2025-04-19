@@ -85,6 +85,25 @@
       return similarity > 0.8;
     }
 
+    function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+function getUserDisplayName() {
+  const name = sessionStorage.getItem("DISPLAY_NAME");
+  return name ? name : "there";
+}
+/* // how to use it
+if (!isActive && transcriptBuffer.includes("hey portal")) {
+  isActive = true;
+  updateMic(true);
+  const greeting = `${getTimeGreeting()}, welcome ${getUserDisplayName()}. I’m ready to listen.`;
+  speak(greeting);
+}*/
+    
     function speak(text) {
       const synth = window.speechSynthesis;
       const utter = new SpeechSynthesisUtterance(text);
