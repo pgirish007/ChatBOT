@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Website Feature Tour</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 40px;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .menu a {
+      font-size: 18px;
+      text-decoration: none;
+      padding: 10px 14px;
+      background: #eee;
+      border-radius: 8px;
+      color: #333;
+    }
+
+    .feature-box {
+      padding: 20px;
+      background: #f7f7f7;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      width: 300px;
+      border-radius: 8px;
+    }
+
+    img.feature-img {
+      width: 300px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tour-highlight {
+      position: relative;
+      z-index: 9998;
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.5);
+      border-radius: 8px;
+    }
+
+    .tour-bubble {
+      position: absolute;
+      max-width: 300px;
+      background: linear-gradient(135deg, #007bff, #00c6ff);
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      z-index: 9999;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .tour-bubble::after {
+      content: "";
+      position: absolute;
+    }
+
+    /* Arrow positioning */
+    .arrow-top::after {
+      top: -15px;
+      left: 30px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent transparent #00c6ff transparent;
+    }
+
+    .arrow-bottom::after {
+      bottom: -15px;
+      left: 30px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: #00c6ff transparent transparent transparent;
+    }
+
+    .arrow-left::after {
+      left: -15px;
+      top: 20px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent #00c6ff transparent transparent;
+    }
+
+    .arrow-right::after {
+      right: -15px;
+      top: 20px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent transparent transparent #00c6ff;
+    }
+
+    .tour-bubble h4 {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+    }
+
+    .tour-bubble p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .tour-controls {
+      margin-top: 12px;
+      text-align: right;
+    }
+
+    .tour-controls button {
+      background: white;
+      color: #007bff;
+      border: none;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-left: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .tour-controls button:hover {
+      background: #f0f0f0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to Our Website</h1>
+
+  <ul class="menu">
+    <li><a href="#" id="nav-dashboard">Dashboard</a></li>
+    <li><a href="#" id="nav-reports">Reports</a></li>
+    <li><a href="#" id="nav-help">Help</a></li>
+  </ul>
+
+  <div class="feature-box" id="box-analytics">
+    <h3>Analytics Panel</h3>
+    <p>See real-time user engagement here.</p>
+  </div>
+
+  <div class="feature-box" id="box-chat">
+    <h3>Live Chat</h3>
+    <p>Connect instantly with support agents.</p>
+  </div>
+
+  <img src="https://via.placeholder.com/300x150" alt="New Tool" class="feature-img" id="img-new-tool">
+
+  <script>
+    const tourSteps = [
+      {
+        targetId: "nav-dashboard",
+        title: "Dashboard Link",
+        message: "The dashboard shows your project overview.",
+        position: "bottom"
+      },
+      {
+        targetId: "box-analytics",
+        title: "Analytics Panel",
+        message: "Real-time user engagement is now here.",
+        position: "right"
+      },
+      {
+        targetId: "box-chat",
+        title: "Live Chat",
+        message: "Start chatting with support directly.",
+        position: "right"
+      },
+      {
+        targetId: "img-new-tool",
+        title: "Performance Monitor",
+        message: "New monitoring tool available.",
+        position: "top"
+      }
+    ];
+
+    function createTourBubble(stepIndex) {
+      const step = tourSteps[stepIndex];
+      const target = document.getElementById(step.targetId);
+      if (!target) return;
+
+      const rect = target.getBoundingClientRect();
+      const scrollTop = window.scrollY;
+      const scrollLeft = window.scrollX;
+
+      const bubble = document.createElement("div");
+      bubble.className = "tour-bubble";
+
+      const position = step.position || "bottom";
+      switch (position) {
+        case "top":
+          bubble.style.top = scrollTop + rect.top - 100 + "px";
+          bubble.style.left = scrollLeft + rect.left + "px";
+          bubble.classList.add("arrow-bottom");
+          break;
+        case "left":
+          bubble.style.top = scrollTop + rect.top + "px";
+          bubble.style.left = scrollLeft + rect.left - 310 + "px";
+          bubble.classList.add("arrow-right");
+          break;
+        case "right":
+          bubble.style.top = scrollTop + rect.top + "px";
+          bubble.style.left = scrollLeft + rect.right + 10 + "px";
+          bubble.classList.add("arrow-left");
+          break;
+        default: // bottom
+          bubble.style.top = scrollTop + rect.bottom + 12 + "px";
+          bubble.style.left = scrollLeft + rect.left + "px";
+          bubble.classList.add("arrow-top");
+      }
+
+      bubble.innerHTML = `
+        <h4>${step.title}</h4>
+        <p>${step.message}</p>
+        <div class="tour-controls">
+          ${stepIndex < tourSteps.length - 1
+            ? `<button onclick="nextTourStep(${stepIndex})">Next</button>`
+            : `<button onclick="endTour()">Finish</button>`}
+        </div>
+      `;
+
+      document.body.appendChild(bubble);
+      target.classList.add("tour-highlight");
+      scrollToView(target);
+    }
+
+    function scrollToView(el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    function nextTourStep(currentIndex) {
+      removeCurrentBubble();
+      const target = document.getElementById(tourSteps[currentIndex].targetId);
+      target.classList.remove("tour-highlight");
+      createTourBubble(currentIndex + 1);
+    }
+
+    function removeCurrentBubble() {
+      const bubble = document.querySelector(".tour-bubble");
+      if (bubble) bubble.remove();
+    }
+
+    function endTour() {
+      removeCurrentBubble();
+      tourSteps.forEach(step => {
+        const target = document.getElementById(step.targetId);
+        target.classList.remove("tour-highlight");
+      });
+      localStorage.setItem("tourSeenAll", "yes");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("tourSeenAll")) {
+        createTourBubble(0);
+      }
+    });
+  </script>
+</body>
+</html>
